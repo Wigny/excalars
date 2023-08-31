@@ -2,6 +2,16 @@ if Code.ensure_loaded(Ecto) do
   defmodule Excalars.Ecto.Changeset do
     import Ecto.Changeset
 
+    def validate_phone(changeset, field) do
+      validate_change(changeset, field, fn ^field, phone ->
+        if Excalars.Phone.valid?(phone) do
+          [{field, "is invalid"}]
+        else
+          []
+        end
+      end)
+    end
+
     def validate_uri(changeset, field) do
       validate_change(changeset, field, fn ^field, uri ->
         cond do

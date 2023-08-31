@@ -18,8 +18,8 @@ defmodule Excalars.Ecto.Type.URITest do
 
     test "dump" do
       assert Ecto.Type.dump(Excalars.Ecto.Type.URI, @uri) == {:ok, to_string(@uri)}
-      assert Ecto.Type.cast(Excalars.Ecto.Type.URI, nil) == {:ok, nil}
-      assert Ecto.Type.cast(Excalars.Ecto.Type.URI, :invalid) == :error
+      assert Ecto.Type.dump(Excalars.Ecto.Type.URI, nil) == {:ok, nil}
+      assert Ecto.Type.dump(Excalars.Ecto.Type.URI, :invalid) == :error
     end
   end
 end
