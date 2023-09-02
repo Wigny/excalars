@@ -1,4 +1,4 @@
-if Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
+if Code.ensure_all_loaded([Ecto, Excalars.Phone]) do
   defmodule Excalars.Ecto.Type.Phone do
     use Ecto.ParameterizedType
     alias Excalars.Phone
@@ -16,8 +16,12 @@ if Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
     def cast(number, %{country: country}) when is_binary(number) do
       case Phone.new(number, country) do
         {:ok, phone} -> {:ok, phone}
-        {:error, error} -> {:error, message: Exception.message(error)}
+        {:error, error} -> {:error, message: error.reason}
       end
+    end
+
+    def cast(phone, %{country: nil}) when is_phone(phone) do
+      {:ok, phone}
     end
 
     def cast(%{country: country} = phone, %{country: country}) when is_phone(phone) do
@@ -34,8 +38,8 @@ if Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
 
     @impl true
 
-    def load(number, _loader, %{country: country}) when is_binary(number) do
-      case Phone.new(<<?+, number::binary>>, country) do
+    def load(number, _loader, _params) when is_binary(number) do
+      case Phone.parse(<<?+, number::binary>>) do
         {:ok, _phone} = ok -> ok
         {:error, _error} -> :error
       end
@@ -48,8 +52,8 @@ if Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
     @impl true
 
     def dump(phone, _dumper, _params) when is_phone(phone) do
-      <<?+, e164::binary>> = Phone.to_string(phone)
-      {:ok, e164}
+      <<?+, number::binary>> = Phone.to_string(phone)
+      {:ok, number}
     end
 
     def dump(phone, _dumper, _params) when is_nil(phone) do
