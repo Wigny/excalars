@@ -8,6 +8,8 @@ defmodule Excalars.Phone do
 
   defstruct [:number, :country]
 
+  @type t :: %__MODULE__{number: binary, country: binary}
+
   defmodule Error do
     alias ExPhoneNumber.Constants.ErrorMessages
 
@@ -25,17 +27,15 @@ defmodule Excalars.Phone do
     def message(%{reason: "invalid length"}), do: "The phone number has not a valid length"
   end
 
-  @type t :: %__MODULE__{number: binary, country: binary}
+  @spec new(number :: binary) :: {:ok, t} | {:error, Error.t()}
+  def new(<<?+, _e164::binary>> = number) do
+    new(number, nil)
+  end
 
   @spec new(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
   @doc """
   Creates a new [Phone struct](`t:t/0`) from the given number and country code.
   """
-
-  def new(<<?+, _e164::binary>> = number) do
-    new(number, nil)
-  end
-
   def new(number, country) do
     with {:ok, phone} <- parse(number, country),
          :ok <- validate_number_possible(phone),
@@ -44,15 +44,15 @@ defmodule Excalars.Phone do
     end
   end
 
-  @spec new!(number :: binary, country :: binary | nil) :: t
-  @doc """
-  Similar to `new!/2` but raises an exception if the phone number is invalid.
-  """
-
+  @spec new!(number :: binary) :: t
   def new!(<<?+, _e164::binary>> = number) do
     new!(number, nil)
   end
 
+  @spec new!(number :: binary, country :: binary | nil) :: t
+  @doc """
+  Similar to `new!/2` but raises an exception if the phone number is invalid.
+  """
   def new!(number, country) do
     case new(number, country) do
       {:ok, phone} -> phone

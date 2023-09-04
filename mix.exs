@@ -20,7 +20,11 @@ defmodule Excalars.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.10", optional: true},
-      {:ex_phone_number, "~> 0.4", optional: true}
+      {:postgrex, ">= 0.0.0", optional: true},
+      {:phoenix_html, "~> 3.3", optional: true},
+      {:gettext, "~> 0.23", optional: true},
+      {:timex, "~> 3.7", optional: true},
+      {:ex_phone_number, "~> 0.4", optional: true},
     ]
   end
 end
