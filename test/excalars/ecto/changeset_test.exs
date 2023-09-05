@@ -8,6 +8,28 @@ defmodule Excalars.Ecto.ChangesetTest do
 
     schema "users" do
       field :avatar, Excalars.Ecto.Type.URI
+      field :phone, Excalars.Ecto.Type.Phone, country: "BR"
+    end
+  end
+
+  describe "validate_phone/2" do
+    test "with valid phone" do
+      changeset =
+        %User{}
+        |> cast(%{phone: "(11) 99999-9999"}, [:phone])
+        |> validate_phone(:phone)
+
+      assert changeset.valid?
+    end
+
+    test "with invalid phone" do
+      changeset =
+        %User{}
+        |> cast(%{phone: "(11) 999-999"}, [:phone])
+        |> validate_phone(:phone)
+
+      refute changeset.valid?
+      assert changeset.errors == [phone: {"is invalid", []}]
     end
   end
 

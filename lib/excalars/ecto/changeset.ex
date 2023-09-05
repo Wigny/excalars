@@ -5,9 +5,9 @@ if Code.ensure_loaded(Ecto) do
     def validate_phone(changeset, field) do
       validate_change(changeset, field, fn ^field, phone ->
         if Excalars.Phone.valid?(phone) do
-          [{field, "is invalid"}]
-        else
           []
+        else
+          [{field, "is invalid"}]
         end
       end)
     end

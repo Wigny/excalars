@@ -157,7 +157,7 @@ defmodule Excalars.Phone do
 
   defimpl Inspect do
     def inspect(phone, opts) do
-      Inspect.BitString.inspect(Excalars.Phone.to_string(phone, :international), opts)
+      Inspect.Algebra.to_doc(Excalars.Phone.to_string(phone, :international), opts)
     end
   end
 
