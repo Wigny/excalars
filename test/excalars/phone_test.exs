@@ -7,18 +7,25 @@ defmodule Excalars.PhoneTest do
 
   describe "new/2" do
     test "with a invalid country code" do
+      assert {:error, %Phone.Error{reason: "invalid country code"}} =
+               Phone.new("(99) 99999-9999", "01")
     end
 
     test "with a too short phone number" do
+      assert {:error, %Phone.Error{reason: "too short"}} = Phone.new("999", "BR")
     end
 
     test "with a too long phone number" do
+      assert {:error, %Phone.Error{reason: "too long"}} = Phone.new("9999 9999 9999", "BR")
     end
 
     test "with a invalid length phone number" do
+      assert {:error, %Phone.Error{reason: "invalid length"}} = Phone.new("999999999", "US")
     end
 
     test "with a unmatched country code" do
+      assert {:error, %Phone.Error{reason: "invalid country code"}} =
+               Phone.new("+55 (99) 99999-9999", "US")
     end
   end
 
