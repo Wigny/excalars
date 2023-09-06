@@ -3,9 +3,14 @@ defmodule Excalars.Document do
 
   @typep digits :: Digits.t()
   @typep document :: struct
+  @typep error :: %{
+           :__struct__ => module,
+           :__exception__ => true,
+           :reason => binary,
+           optional(atom) => any
+         }
 
-  @callback new(digits) :: document
-  @callback valid?(document) :: boolean
+  @callback new(digits) :: {:ok, document} | {:error, error}
   @callback to_digits(document) :: digits
   @callback to_string(document) :: binary
 

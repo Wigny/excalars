@@ -5,19 +5,23 @@ defmodule Excalars.Document.CPF do
 
   defstruct [:base, :check_digits]
 
+  defmodule Error do
+    defexception [:reason]
+
+    def new(fields), do: struct!(__MODULE__, fields)
+
+    def message(%{reason: "invalid digits"}), do: "The CPF is invalid"
+  end
+
   @impl true
   def new(digits) do
     {base, check_digits} = Enum.split(Digits.pad_leading(digits, 11), -2)
-    struct(__MODULE__, base: base, check_digits: check_digits)
-  end
 
-  # https://github.com/klawdyo/validation-br/blob/v.1.4.2/src/cpf.ts
-  @impl true
-  def valid?(%{base: base, check_digits: check_digits}) do
-    digit1 = Document.modulus11(Digits.dot_product(base, Enum.to_list(10..2)))
-    digit2 = Document.modulus11(Digits.dot_product(base ++ [digit1], Enum.to_list(11..2)))
-
-    not Digits.duplicated?(base) and match?(^check_digits, [digit1, digit2])
+    if not Digits.duplicated?(base) and match?(^check_digits, check_digits(base)) do
+      {:ok, struct(__MODULE__, base: base, check_digits: check_digits)}
+    else
+      {:error, Error.new(reason: "invalid digits")}
+    end
   end
 
   @impl true
@@ -30,6 +34,14 @@ defmodule Excalars.Document.CPF do
     digits = to_digits(cpf)
 
     String.replace(Digits.to_string(digits), ~r/(\d{3})(\d{3})(\d{3})(\d{2})/, ~S"\1.\2.\3-\4")
+  end
+
+  # https://github.com/klawdyo/validation-br/blob/v.1.4.2/src/cpf.ts
+  defp check_digits(base) do
+    digit1 = Document.modulus11(Digits.dot_product(base, Enum.to_list(10..2)))
+    digit2 = Document.modulus11(Digits.dot_product(base ++ [digit1], Enum.to_list(11..2)))
+
+    [digit1, digit2]
   end
 
   defimpl Inspect do

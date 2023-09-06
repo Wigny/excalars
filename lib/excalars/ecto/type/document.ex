@@ -9,13 +9,16 @@ defmodule Excalars.Ecto.Type.Document do
 
   @impl true
 
-  def cast(value, %{type: document}) when is_binary(value) do
+  def cast(value, params) when is_binary(value) do
     digits = Excalars.Digits.parse(value)
-    {:ok, apply(document, :new, [digits])}
+    cast(digits, params)
   end
 
   def cast(value, %{type: document}) when is_list(value) do
-    {:ok, apply(document, :new, [value])}
+    case apply(document, :new, [value]) do
+      {:ok, _document} = ok -> ok
+      {:error, error} -> {:error, message: error.reason}
+    end
   end
 
   def cast(value, %{type: document}) when is_struct(value, document) do
@@ -33,7 +36,10 @@ defmodule Excalars.Ecto.Type.Document do
   @impl true
 
   def load(value, _loader, %{type: document}) when is_list(value) do
-    {:ok, apply(document, :new, [value])}
+    case apply(document, :new, [value]) do
+      {:ok, _document} = ok -> ok
+      {:error, _error} -> :error
+    end
   end
 
   def load(value, _loader, _params) when is_nil(value) do

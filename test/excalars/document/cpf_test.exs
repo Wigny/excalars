@@ -4,22 +4,20 @@ defmodule Excalars.Document.CPFTest do
   import Excalars.Digits
   alias Excalars.Document.CPF
 
-  describe "cpf" do
-    test "new/1 returns a document struct" do
-      assert %{base: ~d[045434132], check_digits: ~d[61]} = CPF.new(~d[4543413261])
-    end
+  @cpf %CPF{base: ~d[045434132], check_digits: ~d[61]}
 
-    test "valid?/1 checks the document check digits" do
-      assert CPF.valid?(CPF.new(~d[04543413261]))
-      refute CPF.valid?(CPF.new(~d[04543413262]))
+  describe "cpf" do
+    test "new/1 returns a document struct validating the digits" do
+      assert {:ok, @cpf} = CPF.new(~d[4543413261])
+      assert {:error, %CPF.Error{reason: "invalid digits"}} = CPF.new(~d[4543413262])
     end
 
     test "to_digits/1 returns the document digits" do
-      assert ~d[04543413261] = CPF.to_digits(CPF.new(~d[04543413261]))
+      assert ~d[04543413261] = CPF.to_digits(@cpf)
     end
 
     test "to_string/1 returns the document string representation" do
-      assert "045.434.132-61" = CPF.to_string(CPF.new(~d[04543413261]))
+      assert "045.434.132-61" = CPF.to_string(@cpf)
     end
   end
 end

@@ -2,74 +2,47 @@ defmodule Excalars.Ecto.Type.DocumentTest do
   use ExUnit.Case, async: true
 
   import Excalars.Digits
-  alias Excalars.Ecto.Type.Document, as: Type
 
   defmodule ID do
     @behaviour Excalars.Document
 
     defstruct [:digits]
 
-    def new(digits), do: %__MODULE__{digits: digits}
-    def valid?(_id), do: true
+    def new(digits) do
+      if length(digits) === 3 do
+        {:ok, %__MODULE__{digits: digits}}
+      else
+        {:error, %{reason: "invalid length"}}
+      end
+    end
+
     def to_digits(id), do: id.digits
     def to_string(id), do: "ID#{id.digits}"
   end
 
   describe "document" do
-    test "cast" do
-      assert Ecto.Type.cast(
-               {:parameterized, Type, %{type: ID}},
-               "123"
-             ) == {:ok, ID.new(~d[123])}
-
-      assert Ecto.Type.cast(
-               {:parameterized, Type, %{type: ID}},
-               [1, 2, 3]
-             ) == {:ok, ID.new(~d[123])}
-
-      assert Ecto.Type.cast(
-               {:parameterized, Type, %{type: ID}},
-               ID.new(~d[123])
-             ) == {:ok, ID.new(~d[123])}
-
-      assert Ecto.Type.cast(
-               {:parameterized, Type, %{type: ID}},
-               nil
-             ) == {:ok, nil}
-
-      assert Ecto.Type.cast(
-               {:parameterized, Type, %{type: ID}},
-               :invalid
-             ) == :error
+    setup do
+      %{type: {:parameterized, Excalars.Ecto.Type.Document, %{type: ID}}}
     end
 
-    test "load" do
-      assert Ecto.Type.load(
-               {:parameterized, Type, %{type: ID}},
-               ~d[123]
-             ) == {:ok, ID.new(~d[123])}
-
-      assert Ecto.Type.load(
-               {:parameterized, Type, %{}},
-               nil
-             ) == {:ok, nil}
+    test "cast", %{type: type} do
+      assert Ecto.Type.cast(type, "123") == {:ok, %ID{digits: ~d[123]}}
+      assert Ecto.Type.cast(type, ~d[123]) == {:ok, %ID{digits: ~d[123]}}
+      assert Ecto.Type.cast(type, %ID{digits: ~d[123]}) == {:ok, %ID{digits: ~d[123]}}
+      assert Ecto.Type.cast(type, nil) == {:ok, nil}
+      assert Ecto.Type.cast(type, ~d[1234]) == {:error, message: "invalid length"}
+      assert Ecto.Type.cast(type, :invalid) == :error
     end
 
-    test "dump" do
-      assert Ecto.Type.dump(
-               {:parameterized, Type, %{type: ID}},
-               ID.new(~d[123])
-             ) == {:ok, ~d[123]}
+    test "load", %{type: type} do
+      assert Ecto.Type.load(type, ~d[123]) == {:ok, %ID{digits: ~d[123]}}
+      assert Ecto.Type.load(type, nil) == {:ok, nil}
+    end
 
-      assert Ecto.Type.dump(
-               {:parameterized, Type, %{}},
-               nil
-             ) == {:ok, nil}
-
-      assert Ecto.Type.dump(
-               {:parameterized, Type, %{}},
-               :invalid
-             ) == :error
+    test "dump", %{type: type} do
+      assert Ecto.Type.dump(type, %ID{digits: ~d[123]}) == {:ok, ~d[123]}
+      assert Ecto.Type.dump(type, nil) == {:ok, nil}
+      assert Ecto.Type.dump(type, :invalid) == :error
     end
   end
 end
