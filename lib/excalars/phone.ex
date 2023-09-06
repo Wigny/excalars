@@ -156,8 +156,8 @@ defmodule Excalars.Phone do
   end
 
   defimpl Inspect do
-    def inspect(phone, opts) do
-      Inspect.Algebra.to_doc(Excalars.Phone.to_string(phone, :international), opts)
+    def inspect(phone, _opts) do
+      Inspect.Algebra.concat(["#Phone<", Excalars.Phone.to_string(phone, :international), ">"])
     end
   end
 

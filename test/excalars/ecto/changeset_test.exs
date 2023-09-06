@@ -1,14 +1,40 @@
 defmodule Excalars.Ecto.ChangesetTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
+
   import Ecto.Changeset
   import Excalars.Ecto.Changeset
+
+  alias Excalars.Document.CPF
+  alias Excalars.Ecto.Type
 
   defmodule User do
     use Ecto.Schema
 
     schema "users" do
-      field :avatar, Excalars.Ecto.Type.URI
-      field :phone, Excalars.Ecto.Type.Phone, country: "BR"
+      field :cpf, Type.Document, as: CPF
+      field :phone, Type.Phone, country: "BR"
+      field :avatar, Type.URI
+    end
+  end
+
+  describe "validate_document/2" do
+    test "with valid document" do
+      changeset =
+        %User{}
+        |> cast(%{cpf: "045.434.132-61"}, [:cpf])
+        |> validate_document(:cpf)
+
+      assert changeset.valid?
+    end
+
+    test "with invalid document" do
+      changeset =
+        %User{}
+        |> cast(%{cpf: "045.434.132-62"}, [:cpf])
+        |> validate_document(:cpf)
+
+      refute changeset.valid?
+      assert changeset.errors == [cpf: {"is invalid", []}]
     end
   end
 

@@ -1,5 +1,5 @@
 defmodule Excalars.Ecto.Type.DurationTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Excalars.Ecto.Type.Duration
 

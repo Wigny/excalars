@@ -1,5 +1,5 @@
 defmodule Excalars.PhoneTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Excalars.Phone
 

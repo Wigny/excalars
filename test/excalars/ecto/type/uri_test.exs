@@ -1,5 +1,5 @@
 defmodule Excalars.Ecto.Type.URITest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @uri %URI{scheme: "http", host: "example.com", port: 80}
 
