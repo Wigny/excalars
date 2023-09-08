@@ -69,22 +69,4 @@ defmodule Excalars.Digits do
       Enum.concat(List.duplicate(0, count - digits_length), digits)
     end
   end
-
-  @doc """
-  Calculates the dot product of two digits sequences.
-
-  The dot product is the sum of the products of the corresponding entries of the two sequences.
-
-  ## Example
-
-      iex> Excalars.Digits.dot_product([1, 2, 3], [4, 5, 6])
-      32
-  """
-  @spec dot_product(digits1 :: t, digits2 :: t) :: non_neg_integer
-  def dot_product(digits1, digits2) do
-    [digits1, digits2]
-    |> Enum.zip()
-    |> Enum.map(&Tuple.product/1)
-    |> Enum.sum()
-  end
 end

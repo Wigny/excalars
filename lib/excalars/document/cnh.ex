@@ -37,8 +37,8 @@ defmodule Excalars.Document.CNH do
 
   # https://github.com/klawdyo/validation-br/blob/v.1.4.2/src/cnh.ts
   defp check_digits(base) do
-    digit1 = Document.modulus11(Digits.dot_product(base, Enum.to_list(2..10)))
-    digit2 = Document.modulus11(Digits.dot_product(base ++ [digit1], Enum.concat(3..11, [2])))
+    digit1 = Document.modulo11(Document.weighted_sum(base, 2..10))
+    digit2 = Document.modulo11(Document.weighted_sum(base ++ [digit1], Enum.concat(3..11, [2])))
 
     [digit1, digit2]
   end

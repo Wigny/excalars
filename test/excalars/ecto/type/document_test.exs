@@ -35,12 +35,12 @@ defmodule Excalars.Ecto.Type.DocumentTest do
     end
 
     test "load", %{type: type} do
-      assert Ecto.Type.load(type, ~d[123]) == {:ok, %ID{digits: ~d[123]}}
+      assert Ecto.Type.load(type, "123") == {:ok, %ID{digits: ~d[123]}}
       assert Ecto.Type.load(type, nil) == {:ok, nil}
     end
 
     test "dump", %{type: type} do
-      assert Ecto.Type.dump(type, %ID{digits: ~d[123]}) == {:ok, ~d[123]}
+      assert Ecto.Type.dump(type, %ID{digits: ~d[123]}) == {:ok, "123"}
       assert Ecto.Type.dump(type, nil) == {:ok, nil}
       assert Ecto.Type.dump(type, :invalid) == :error
     end

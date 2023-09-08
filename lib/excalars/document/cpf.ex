@@ -38,8 +38,8 @@ defmodule Excalars.Document.CPF do
 
   # https://github.com/klawdyo/validation-br/blob/v.1.4.2/src/cpf.ts
   defp check_digits(base) do
-    digit1 = Document.modulus11(Digits.dot_product(base, Enum.to_list(10..2)))
-    digit2 = Document.modulus11(Digits.dot_product(base ++ [digit1], Enum.to_list(11..2)))
+    digit1 = Document.modulo11(Document.weighted_sum(base, 10..2))
+    digit2 = Document.modulo11(Document.weighted_sum(base ++ [digit1], 11..2))
 
     [digit1, digit2]
   end
