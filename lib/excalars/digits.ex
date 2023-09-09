@@ -19,7 +19,6 @@ defmodule Excalars.Digits do
       iex> Excalars.Digits.parse("12-3")
       [1, 2, 3]
   """
-
   @spec parse(value :: non_neg_integer | binary) :: t
   def parse(value) when is_integer(value) do
     Integer.digits(value)
@@ -58,7 +57,6 @@ defmodule Excalars.Digits do
       iex> Excalars.Digits.pad_leading([1], 5)
       [0, 0, 0, 0, 1]
   """
-
   @spec pad_leading(digits :: t, count :: non_neg_integer) :: t
   def pad_leading(digits, count) do
     digits_length = length(digits)

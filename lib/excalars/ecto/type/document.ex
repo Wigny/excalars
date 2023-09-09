@@ -11,7 +11,6 @@ if Code.ensure_loaded(Ecto) do
     def init(opts), do: %{type: opts[:as]}
 
     @impl true
-
     def cast(value, params) when is_binary(value) do
       digits = Digits.parse(value)
       cast(digits, params)
@@ -37,7 +36,6 @@ if Code.ensure_loaded(Ecto) do
     end
 
     @impl true
-
     def load(value, _loader, %{type: document}) when is_binary(value) do
       digits = Digits.parse(value)
 
@@ -52,7 +50,6 @@ if Code.ensure_loaded(Ecto) do
     end
 
     @impl true
-
     def dump(value, _dumper, %{type: document}) when is_struct(value, document) do
       digits = apply(document, :to_digits, [value])
       {:ok, Digits.to_string(digits)}

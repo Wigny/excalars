@@ -1,5 +1,18 @@
 if Code.ensure_all_loaded([Ecto, Excalars.Phone]) do
   defmodule Excalars.Ecto.Type.Phone do
+    @moduledoc """
+    Custom `Ecto.Type` for handling `Excalars.Phone` structs as binary.
+
+    On your schema, you can use this type on a `:string` field like this:
+
+        field :phone, Excalars.Ecto.Type.Phone
+
+    or if you want to allow only a specific country number
+
+        field :phone, Excalars.Ecto.Type.Phone, country: "BR"
+
+    """
+
     use Ecto.ParameterizedType
     alias Excalars.Phone
 
@@ -12,7 +25,6 @@ if Code.ensure_all_loaded([Ecto, Excalars.Phone]) do
     def init(opts), do: %{country: opts[:country]}
 
     @impl true
-
     def cast(number, %{country: country}) when is_binary(number) do
       case Phone.new(number, country) do
         {:ok, phone} -> {:ok, phone}
@@ -37,7 +49,6 @@ if Code.ensure_all_loaded([Ecto, Excalars.Phone]) do
     end
 
     @impl true
-
     def load(number, _loader, _params) when is_binary(number) do
       case Phone.parse(<<?+, number::binary>>) do
         {:ok, _phone} = ok -> ok
@@ -50,9 +61,8 @@ if Code.ensure_all_loaded([Ecto, Excalars.Phone]) do
     end
 
     @impl true
-
     def dump(phone, _dumper, _params) when is_phone(phone) do
-      <<?+, number::binary>> = Phone.to_string(phone)
+      <<?+, number::binary>> = Phone.to_number(phone)
       {:ok, number}
     end
 

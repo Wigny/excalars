@@ -50,7 +50,7 @@ defmodule Excalars.Document.CPF do
 
   defimpl Inspect do
     def inspect(cpf, _opts) do
-      Inspect.Algebra.concat(["#CPF<", to_string(cpf), ">"])
+      Inspect.Algebra.concat(["#Excalars.Document.CPF<", to_string(cpf), ">"])
     end
   end
 

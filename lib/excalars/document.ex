@@ -14,10 +14,10 @@ defmodule Excalars.Document do
   @callback to_digits(document) :: digits
   @callback to_string(document) :: binary
 
-  @spec weighted_sum(digits, weights :: Enumerable.t()) :: non_neg_integer
   @doc """
   Calculates the weighted sum of the digits using the given weights.
   """
+  @spec weighted_sum(digits, weights :: Enumerable.t()) :: non_neg_integer
   def weighted_sum(digits, weights) do
     [digits, weights]
     |> Enum.zip()

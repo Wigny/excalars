@@ -1,7 +1,7 @@
 if Code.ensure_loaded(Ecto) do
   defmodule Excalars.Ecto.Type.URI do
     @moduledoc """
-    Custom Ecto Type for handling `URI` structs in schema fields
+    Custom `Ecto.Type` for handling `URI` structs as binary.
     """
 
     use Ecto.Type
@@ -10,7 +10,6 @@ if Code.ensure_loaded(Ecto) do
     def type, do: :string
 
     @impl true
-
     def cast(uri) when is_binary(uri) do
       case URI.new(uri) do
         {:ok, _uri} = ok -> ok

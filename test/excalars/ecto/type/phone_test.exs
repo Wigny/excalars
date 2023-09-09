@@ -3,7 +3,7 @@ defmodule Excalars.Ecto.Type.PhoneTest do
 
   alias Excalars.Ecto.Type.Phone, as: Type
 
-  @phone %Excalars.Phone{number: 99_998_765_432, country: "BR"}
+  @phone %Excalars.Phone{number: 99_998_765_432, code: 55}
 
   describe "phone" do
     test "cast" do
@@ -49,7 +49,7 @@ defmodule Excalars.Ecto.Type.PhoneTest do
     end
 
     test "load" do
-      number = String.trim_leading(to_string(@phone), "+")
+      number = String.trim_leading(Excalars.Phone.to_number(@phone), "+")
 
       assert Ecto.Type.load({:parameterized, Type, nil}, number) == {:ok, @phone}
       assert Ecto.Type.load({:parameterized, Type, nil}, number) == {:ok, @phone}
@@ -57,7 +57,7 @@ defmodule Excalars.Ecto.Type.PhoneTest do
     end
 
     test "dump" do
-      number = String.trim_leading(to_string(@phone), "+")
+      number = String.trim_leading(Excalars.Phone.to_number(@phone), "+")
 
       assert Ecto.Type.dump({:parameterized, Type, nil}, @phone) == {:ok, number}
       assert Ecto.Type.dump({:parameterized, Type, nil}, nil) == {:ok, nil}

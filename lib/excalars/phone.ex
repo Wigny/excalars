@@ -1,171 +1,246 @@
-defmodule Excalars.Phone do
-  @moduledoc """
-  A representation of a phone number.
+if Code.ensure_loaded(ExPhoneNumber) do
+  defmodule Excalars.Phone do
+    @moduledoc """
+    A representation of a phone number.
 
-  This module is a tiny wrapper around the `ExPhoneNumber` library, providing a clear and simple
-  API to deal with creating, parsing and validating phone numbers.
-  """
+    This module is a tiny wrapper around the `ExPhoneNumber` library, providing a clear and simple
+    API to deal with creating, parsing and validating phone numbers. To have this wrapper
+    available for use, you are required to add the `ex_phone_number` dependency to your project
+    (check the [`ExPhoneNumber` installation documentation](https://hexdocs.pm/ex_phone_number/readme.html#installation)).
+    """
 
-  defstruct [:number, :country]
+    @type t :: %__MODULE__{code: non_neg_integer, number: non_neg_integer}
+    defstruct [:code, :number]
 
-  @type t :: %__MODULE__{number: binary, country: binary}
+    defmodule Error do
+      @moduledoc false
 
-  defmodule Error do
-    alias ExPhoneNumber.Constants.ErrorMessages
+      alias ExPhoneNumber.Constants.ErrorMessages
 
-    defexception [:reason]
+      @type t :: %__MODULE__{reason: binary}
+      defexception [:reason]
 
-    @type t :: %__MODULE__{reason: binary}
+      def new(fields), do: struct!(__MODULE__, fields)
 
-    def new(fields), do: struct!(__MODULE__, fields)
-
-    def message(%{reason: "invalid country code"}), do: ErrorMessages.invalid_country_code()
-    def message(%{reason: "not a number"}), do: ErrorMessages.not_a_number()
-    def message(%{reason: "too short after IDD"}), do: ErrorMessages.too_short_after_idd()
-    def message(%{reason: "too short"}), do: ErrorMessages.too_short_nsn()
-    def message(%{reason: "too long"}), do: ErrorMessages.too_long()
-    def message(%{reason: "invalid length"}), do: "The phone number has not a valid length"
-  end
-
-  @spec new(number :: binary) :: {:ok, t} | {:error, Error.t()}
-  def new(<<?+, _e164::binary>> = number) do
-    new(number, nil)
-  end
-
-  @spec new(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
-  @doc """
-  Creates a new [Phone struct](`t:t/0`) from the given number and country code.
-  """
-  def new(number, country) do
-    with {:ok, phone} <- parse(number, country),
-         :ok <- validate_number_possible(phone),
-         :ok <- validate_match_country(phone, country) do
-      {:ok, phone}
+      def message(%{reason: "invalid country code"}), do: ErrorMessages.invalid_country_code()
+      def message(%{reason: "not a number"}), do: ErrorMessages.not_a_number()
+      def message(%{reason: "too short after IDD"}), do: ErrorMessages.too_short_after_idd()
+      def message(%{reason: "too short"}), do: ErrorMessages.too_short_nsn()
+      def message(%{reason: "too long"}), do: ErrorMessages.too_long()
+      def message(%{reason: "invalid length"}), do: "The phone number has not a valid length"
     end
-  end
 
-  @spec new!(number :: binary) :: t
-  def new!(<<?+, _e164::binary>> = number) do
-    new!(number, nil)
-  end
+    @doc """
+    Similar to `new/2`, but expects a E-164 number as parameter instead of a pair of local number
+    and country code.
 
-  @spec new!(number :: binary, country :: binary | nil) :: t
-  @doc """
-  Similar to `new!/2` but raises an exception if the phone number is invalid.
-  """
-  def new!(number, country) do
-    case new(number, country) do
-      {:ok, phone} -> phone
-      {:error, error} -> raise error
+    ## Examples
+
+        iex> Excalars.Phone.new("+44 (020) 1234 5678")
+        {:ok, %Excalars.Phone{code: 44, number: 02012345678}}
+
+        iex> Excalars.Phone.new("+55 9876")
+        {:error, %Excalars.Phone.Error{reason: "too short"}}
+    """
+    @spec new(number :: binary) :: {:ok, t} | {:error, Error.t()}
+    def new(<<?+, _e164::binary>> = number) do
+      new(number, nil)
     end
-  end
 
-  @spec parse(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
-  @doc """
-  Parses a phone number and it's country code into the [Phone struct](`t:t/0`) without futher
-  validations.
-  """
-  def parse(number, country \\ nil) do
-    case ExPhoneNumber.parse(number, country) do
-      {:ok, phone_number} -> {:ok, from_phone_number(phone_number)}
-      {:error, message} -> {:error, Error.new(reason: to_error_reason(message))}
+    @doc """
+    Creates a new `Excalars.Phone` struct from given local number and country code.
+
+    ## Examples
+
+        iex> Excalars.Phone.new("(11) 98765-4321", "BR")
+        {:ok, %Excalars.Phone{code: 55, number: 11987654321}}
+
+        iex> Excalars.Phone.new("9876", "BR")
+        {:error, %Excalars.Phone.Error{reason: "too short"}}
+    """
+    @spec new(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
+    def new(number, country) do
+      with {:ok, phone} <- parse(number, country),
+           :ok <- validate_number_possible(phone),
+           :ok <- validate_match_country(phone, country) do
+        {:ok, phone}
+      end
     end
-  end
 
-  @spec valid?(phone :: t) :: boolean
-  @doc """
-  Checks whether the [Phone](`t:t/0`) has a possible valid number.
-  """
-  def valid?(phone) do
-    phone_number = to_phone_number(phone)
+    @doc """
+    Same as `new/1`, but raises an exception if the phone number is invalid.
 
-    ExPhoneNumber.is_possible_number?(phone_number) and
-      ExPhoneNumber.is_valid_number?(phone_number)
-  end
+    ## Examples
 
-  @spec to_string(phone :: t, format :: :e164 | :rfc3966 | :international | :national) :: binary
-  @doc """
-  Converts the [Phone](`t:t/0`) into a phone number string according the given format.
-  """
-  def to_string(phone, format \\ :e164) do
-    ExPhoneNumber.format(to_phone_number(phone), format)
-  end
+        iex> Excalars.Phone.new!("+44 (020) 1234 5678")
+        %Excalars.Phone{code: 44, number: 02012345678}
 
-  @spec to_uri(phone :: t) :: URI.t()
-  @doc """
-  Converts the given [Phone](`t:t/0`) into the URI struct.
-  """
-  def to_uri(phone) do
-    URI.parse(to_string(phone, :rfc3966))
-  end
-
-  defp from_phone_number(phone_number) do
-    country = ExPhoneNumber.Metadata.get_region_code_for_country_code(phone_number.country_code)
-
-    %__MODULE__{number: phone_number.national_number, country: country}
-  end
-
-  defp to_phone_number(phone) do
-    country_code = ExPhoneNumber.Metadata.get_country_code_for_region_code(phone.country)
-
-    %ExPhoneNumber.Model.PhoneNumber{national_number: phone.number, country_code: country_code}
-  end
-
-  defp validate_number_possible(phone) do
-    case ExPhoneNumber.Validation.is_possible_number_with_reason?(to_phone_number(phone)) do
-      :is_possible -> :ok
-      reason -> {:error, Error.new(reason: to_error_reason(reason))}
+        iex> Excalars.Phone.new!("+55 9876")
+        ** (Excalars.Phone.Error) The string supplied is too short to be a phone number
+    """
+    @spec new!(number :: binary) :: t
+    def new!(<<?+, _e164::binary>> = number) do
+      new!(number, nil)
     end
-  end
 
-  defp validate_match_country(_phone, nil) do
-    :ok
-  end
+    @doc """
+    Same as `new/2`, but raises an exception if the phone number is invalid.
 
-  defp validate_match_country(%{country: country}, country) do
-    :ok
-  end
+    ## Examples
 
-  defp validate_match_country(_phone, _country) do
-    {:error, Error.new(reason: "invalid country code")}
-  end
+        iex> Excalars.Phone.new!("(11) 98765-4321", "BR")
+        %Excalars.Phone{code: 55, number: 11987654321}
 
-  defp to_error_reason(message) when is_binary(message) do
-    import ExPhoneNumber.Constants.ErrorMessages
-
-    cond do
-      message === invalid_country_code() -> "invalid country code"
-      message === not_a_number() -> "not a number"
-      message === too_short_after_idd() -> "too short after IDD"
-      message === too_short_nsn() -> "too short"
-      message === too_long() -> "too long"
+        iex> Excalars.Phone.new!("invalid", "BR")
+        ** (Excalars.Phone.Error) The string supplied did not seem to be a phone number
+    """
+    @spec new!(number :: binary, country :: binary | nil) :: t
+    def new!(number, country) do
+      case new(number, country) do
+        {:ok, phone} -> phone
+        {:error, error} -> raise error
+      end
     end
-  end
 
-  defp to_error_reason(reason) when is_atom(reason) do
-    case reason do
-      :invalid_country_code -> "invalid country code"
-      :too_short -> "too short"
-      :too_long -> "too long"
-      :invalid_length -> "invalid length"
+    @doc """
+    Parses a phone number and country code into the `Excalars.Phone` struct without futher
+    validations.
+    """
+    @spec parse(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
+    def parse(number, country \\ nil) do
+      case ExPhoneNumber.parse(number, country) do
+        {:ok, phone_number} -> {:ok, from_phone_number(phone_number)}
+        {:error, message} -> {:error, Error.new(reason: to_error_reason(message))}
+      end
     end
-  end
 
-  defimpl String.Chars do
-    defdelegate to_string(phone), to: Excalars.Phone
-  end
+    @doc """
+    Checks whether the `Excalars.Phone` has a possible valid number.
 
-  defimpl Inspect do
-    def inspect(phone, _opts) do
-      number = Excalars.Phone.to_string(phone, :national)
-      "Excalars.Phone.new!(#{inspect(number)}, #{inspect(phone.country)})"
+    ## Examples
+
+        iex> {:ok, phone} = Excalars.Phone.parse("+800 1234 5678")
+        iex> Excalars.Phone.valid?(phone)
+        true
+
+        iex> {:ok, phone} = Excalars.Phone.parse("9876", "BR")
+        iex> Excalars.Phone.valid?(phone)
+        false
+    """
+    @spec valid?(phone :: t) :: boolean
+    def valid?(phone) do
+      phone_number = to_phone_number(phone)
+
+      ExPhoneNumber.is_possible_number?(phone_number) and
+        ExPhoneNumber.is_valid_number?(phone_number)
     end
-  end
 
-  if Code.ensure_loaded?(Phoenix.HTML.Safe) do
-    defimpl Phoenix.HTML.Safe do
-      def to_iodata(phone) do
-        Excalars.Phone.to_string(phone, :national)
+    @doc """
+    Converts the `Excalars.Phone` into its phone number representation.
+
+    ## Examples
+
+        iex> phone = Excalars.Phone.new!("+55 11 98765-4321")
+        iex> Excalars.Phone.to_number(phone)
+        "+5511987654321"
+    """
+    @spec to_number(phone :: t) :: binary
+    def to_number(phone) do
+      ExPhoneNumber.format(to_phone_number(phone), :e164)
+    end
+
+    @doc """
+    Converts the `Excalars.Phone` into a formatted phone number string.
+
+    ## Examples
+
+        iex> phone = Excalars.Phone.new!("11987654321", "BR")
+        iex> Excalars.Phone.to_string(phone)
+        "+55 11 98765-4321"
+    """
+    @spec to_string(phone :: t) :: binary
+    def to_string(phone) do
+      ExPhoneNumber.format(to_phone_number(phone), :international)
+    end
+
+    @doc """
+    Converts the given `Excalars.Phone` into the `URI` struct.
+
+    ## Examples
+
+        iex> phone = Excalars.Phone.new!("+55 11 98765-4321")
+        iex> Excalars.Phone.to_uri(phone)
+        %URI{scheme: "tel", path: "+55-11-98765-4321"}
+    """
+    @spec to_uri(phone :: t) :: URI.t()
+    def to_uri(phone) do
+      tel = ExPhoneNumber.format(to_phone_number(phone), :rfc3966)
+      URI.parse(tel)
+    end
+
+    defp from_phone_number(phone_number) do
+      %__MODULE__{code: phone_number.country_code, number: phone_number.national_number}
+    end
+
+    defp to_phone_number(phone) do
+      %ExPhoneNumber.Model.PhoneNumber{country_code: phone.code, national_number: phone.number}
+    end
+
+    defp validate_number_possible(phone) do
+      case ExPhoneNumber.Validation.is_possible_number_with_reason?(to_phone_number(phone)) do
+        :is_possible -> :ok
+        reason -> {:error, Error.new(reason: to_error_reason(reason))}
+      end
+    end
+
+    defp validate_match_country(_phone, nil) do
+      :ok
+    end
+
+    defp validate_match_country(phone, country) do
+      if match?(^country, ExPhoneNumber.Metadata.get_region_code_for_country_code(phone.code)) do
+        :ok
+      else
+        {:error, Error.new(reason: "invalid country code")}
+      end
+    end
+
+    defp to_error_reason(message) when is_binary(message) do
+      import ExPhoneNumber.Constants.ErrorMessages
+
+      cond do
+        message === invalid_country_code() -> "invalid country code"
+        message === not_a_number() -> "not a number"
+        message === too_short_after_idd() -> "too short after IDD"
+        message === too_short_nsn() -> "too short"
+        message === too_long() -> "too long"
+      end
+    end
+
+    defp to_error_reason(reason) when is_atom(reason) do
+      case reason do
+        :invalid_country_code -> "invalid country code"
+        :too_short -> "too short"
+        :too_long -> "too long"
+        :invalid_length -> "invalid length"
+      end
+    end
+
+    defimpl String.Chars do
+      defdelegate to_string(phone), to: Excalars.Phone
+    end
+
+    defimpl Inspect do
+      def inspect(phone, _opts) do
+        Inspect.Algebra.concat(["#Excalars.Phone<", to_string(phone), ">"])
+      end
+    end
+
+    if Code.ensure_loaded?(Phoenix.HTML.Safe) do
+      defimpl Phoenix.HTML.Safe do
+        def to_iodata(phone) do
+          to_string(phone)
+        end
       end
     end
   end

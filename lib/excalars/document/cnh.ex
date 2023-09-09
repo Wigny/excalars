@@ -45,7 +45,7 @@ defmodule Excalars.Document.CNH do
 
   defimpl Inspect do
     def inspect(cnh, _opts) do
-      Inspect.Algebra.concat(["#CNH<", to_string(cnh), ">"])
+      Inspect.Algebra.concat(["#Excalars.Document.CNH<", to_string(cnh), ">"])
     end
   end
 

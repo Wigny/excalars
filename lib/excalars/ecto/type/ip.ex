@@ -6,7 +6,6 @@ if Code.ensure_all_loaded([Ecto, Postgrex]) do
     def type(), do: :inet
 
     @impl true
-
     def cast(address) when is_binary(address) do
       case :inet.parse_address(to_charlist(address)) do
         {:ok, _address} = ok -> ok

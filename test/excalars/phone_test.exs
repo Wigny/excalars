@@ -3,12 +3,14 @@ defmodule Excalars.PhoneTest do
 
   alias Excalars.Phone
 
-  @phone %Phone{country: "BR", number: 99_999_999_999}
+  doctest Phone
+
+  @phone %Phone{code: 55, number: 99_999_999_999}
 
   describe "new/2" do
     test "with a invalid country code" do
       assert {:error, %Phone.Error{reason: "invalid country code"}} =
-               Phone.new("(99) 99999-9999", "01")
+               Phone.new("(99) 99999-9999", "invalid")
     end
 
     test "with a too short phone number" do
@@ -53,25 +55,19 @@ defmodule Excalars.PhoneTest do
     end
 
     test "with an invalid phone" do
-      refute Phone.valid?(%Phone{country: "BR", number: 10})
+      refute Phone.valid?(%Phone{code: 55, number: 10})
     end
   end
 
-  describe "to_string/2" do
-    test "returns a international phone number" do
-      assert "+5599999999999" = Phone.to_string(@phone)
+  describe "to_number/1" do
+    test "returns a phone number" do
+      assert "+5599999999999" = Phone.to_number(@phone)
     end
+  end
 
-    test "returns a tel protocol formatted phone number" do
-      assert "tel:+55-99-99999-9999" = Phone.to_string(@phone, :rfc3966)
-    end
-
-    test "retuns a international formatted phone number" do
-      assert "+55 99 99999-9999" = Phone.to_string(@phone, :international)
-    end
-
-    test "returns a national formatted phone number" do
-      assert "(99) 99999-9999" = Phone.to_string(@phone, :national)
+  describe "to_string/1" do
+    test "retuns a formatted phone number" do
+      assert "+55 99 99999-9999" = Phone.to_string(@phone)
     end
   end
 
