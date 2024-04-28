@@ -1,8 +1,4 @@
 defmodule ExcalarsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Excalars
-
-  test "greets the world" do
-    assert Excalars.hello() == :world
-  end
 end

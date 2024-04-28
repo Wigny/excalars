@@ -37,7 +37,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> Excalars.Phone.new("+44 (020) 1234 5678")
-        {:ok, %Excalars.Phone{code: 44, number: 02012345678}}
+        {:ok, %Excalars.Phone{code: 44, number: 02_012_345_678}}
 
         iex> Excalars.Phone.new("+55 9876")
         {:error, %Excalars.Phone.Error{reason: "too short"}}
@@ -53,7 +53,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> Excalars.Phone.new("(11) 98765-4321", "BR")
-        {:ok, %Excalars.Phone{code: 55, number: 11987654321}}
+        {:ok, %Excalars.Phone{code: 55, number: 11_987_654_321}}
 
         iex> Excalars.Phone.new("9876", "BR")
         {:error, %Excalars.Phone.Error{reason: "too short"}}
@@ -73,7 +73,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> Excalars.Phone.new!("+44 (020) 1234 5678")
-        %Excalars.Phone{code: 44, number: 02012345678}
+        %Excalars.Phone{code: 44, number: 02_012_345_678}
 
         iex> Excalars.Phone.new!("+55 9876")
         ** (Excalars.Phone.Error) The string supplied is too short to be a phone number
@@ -89,7 +89,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> Excalars.Phone.new!("(11) 98765-4321", "BR")
-        %Excalars.Phone{code: 55, number: 11987654321}
+        %Excalars.Phone{code: 55, number: 11_987_654_321}
 
         iex> Excalars.Phone.new!("invalid", "BR")
         ** (Excalars.Phone.Error) The string supplied did not seem to be a phone number
@@ -120,11 +120,11 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> {:ok, phone} = Excalars.Phone.parse("+800 1234 5678")
-        iex> Excalars.Phone.valid?(phone)
+        ...> Excalars.Phone.valid?(phone)
         true
 
         iex> {:ok, phone} = Excalars.Phone.parse("9876", "BR")
-        iex> Excalars.Phone.valid?(phone)
+        ...> Excalars.Phone.valid?(phone)
         false
     """
     @spec valid?(phone :: t) :: boolean
@@ -141,7 +141,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> phone = Excalars.Phone.new!("+55 11 98765-4321")
-        iex> Excalars.Phone.to_number(phone)
+        ...> Excalars.Phone.to_number(phone)
         "+5511987654321"
     """
     @spec to_number(phone :: t) :: binary
@@ -155,7 +155,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> phone = Excalars.Phone.new!("11987654321", "BR")
-        iex> Excalars.Phone.to_string(phone)
+        ...> Excalars.Phone.to_string(phone)
         "+55 11 98765-4321"
     """
     @spec to_string(phone :: t) :: binary
@@ -169,7 +169,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     ## Examples
 
         iex> phone = Excalars.Phone.new!("+55 11 98765-4321")
-        iex> Excalars.Phone.to_uri(phone)
+        ...> Excalars.Phone.to_uri(phone)
         %URI{scheme: "tel", path: "+55-11-98765-4321"}
     """
     @spec to_uri(phone :: t) :: URI.t()
