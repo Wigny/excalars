@@ -136,7 +136,7 @@ if Code.ensure_loaded(ExPhoneNumber) do
     end
 
     @doc """
-    Converts the `Excalars.Phone` into its phone number representation.
+    Converts the `Excalars.Phone` into its number representation.
 
     ## Examples
 

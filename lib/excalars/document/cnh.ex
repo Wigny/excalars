@@ -17,7 +17,7 @@ defmodule Excalars.Document.CNH do
   def new(digits) do
     {base, check_digits} = Enum.split(Digits.pad_leading(digits, 11), -2)
 
-    if not Digits.duplicated?(base) and match?(^check_digits, check_digits(base)) do
+    if not Digits.monodigit?(base) and match?(^check_digits, check_digits(base)) do
       {:ok, struct(__MODULE__, base: base, check_digits: check_digits)}
     else
       {:error, Error.new(reason: "invalid digits")}

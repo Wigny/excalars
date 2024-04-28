@@ -1,4 +1,7 @@
 defmodule Excalars.Document do
+  @moduledoc """
+  A behaviour that defines a document digits-based.
+  """
   alias Excalars.Digits
 
   @typep digits :: Digits.t()
@@ -10,8 +13,19 @@ defmodule Excalars.Document do
            optional(atom) => any
          }
 
+  @doc """
+  Creates a new document from the given digits.
+  """
   @callback new(digits) :: {:ok, document} | {:error, exception}
+
+  @doc """
+  Converts a document into its digits representation.
+  """
   @callback to_digits(document) :: digits
+
+  @doc """
+  Converts a document into its formatted string representation.
+  """
   @callback to_string(document) :: binary
 
   @doc """

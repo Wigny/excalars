@@ -36,8 +36,19 @@ defmodule Excalars.Digits do
     Enum.join(digits)
   end
 
-  @spec duplicated?(digits :: t) :: boolean
-  def duplicated?(digits) do
+  @doc """
+  Checks if the given digits sequence is composed by repeated digits.
+
+  ## Examples
+
+      iex> Excalars.Digits.monodigit?([1, 1, 1])
+      true
+
+      iex> Excalars.Digits.monodigit?([1, 2, 3])
+      false
+  """
+  @spec monodigit?(digits :: t) :: boolean
+  def monodigit?(digits) do
     uniq = Enum.uniq(digits)
 
     length(uniq) == 1
@@ -46,7 +57,7 @@ defmodule Excalars.Digits do
   @doc """
   Returns a new digits sequence padded with 0 as the leading filler.
 
-  ## Example
+  ## Examples
 
       iex> Excalars.Digits.pad_leading([1, 2, 3], 4)
       [0, 1, 2, 3]
