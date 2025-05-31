@@ -4,8 +4,8 @@ defmodule Excalars.MixProject do
   def project do
     [
       app: :excalars,
-      version: "0.1.0",
-      elixir: "~> 1.17-dev",
+      version: "0.2.0",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps()
@@ -23,13 +23,12 @@ defmodule Excalars.MixProject do
 
   defp deps do
     [
-      {:ecto, "~> 3.11", optional: true},
+      {:ecto, "~> 3.12", optional: true},
       {:postgrex, ">= 0.0.0", optional: true},
-      {:phoenix_html, "~> 4.1", optional: true},
-      {:gettext, "~> 0.24", optional: true},
-      {:timex, "~> 3.7", optional: true},
+      {:phoenix_html, "~> 4.2", optional: true},
       {:ex_phone_number, "~> 0.4", optional: true},
-      {:doctest_formatter, "~> 0.3", env: :dev, runtime: false}
+      {:doctest_formatter, "~> 0.4", env: :dev, runtime: false},
+      {:mix_test_watch, "~> 1.2", only: [:dev, :test], runtime: false}
     ]
   end
 end

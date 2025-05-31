@@ -38,8 +38,8 @@ defmodule Excalars.Document.CPF do
 
   # https://github.com/klawdyo/validation-br/blob/v.1.4.2/src/cpf.ts
   defp check_digits(base) do
-    digit1 = Document.modulo11(Document.weighted_sum(base, 10..2))
-    digit2 = Document.modulo11(Document.weighted_sum(base ++ [digit1], 11..2))
+    digit1 = Document.modulo11(Document.weighted_sum(base, 10..2//-1))
+    digit2 = Document.modulo11(Document.weighted_sum(base ++ [digit1], 11..2//-1))
 
     [digit1, digit2]
   end
@@ -50,7 +50,7 @@ defmodule Excalars.Document.CPF do
 
   defimpl Inspect do
     def inspect(cpf, _opts) do
-      Inspect.Algebra.concat(["#Excalars.Document.CPF<", to_string(cpf), ">"])
+      Inspect.Algebra.concat(["Excalars.Document.CPF.new(", to_string(cpf), ")"])
     end
   end
 
