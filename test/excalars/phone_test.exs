@@ -2,10 +2,25 @@ defmodule Excalars.PhoneTest do
   use ExUnit.Case, async: true
 
   alias Excalars.Phone
+  import Excalars.Phone, only: [sigil_P: 2]
 
   doctest Phone
 
   @phone %Phone{code: 55, number: 99_999_999_999}
+
+  describe "sigil_P" do
+    assert ~P"+55 (99) 99999-9999" == Phone.new!("+55 (99) 99999-9999")
+
+    assert ~P"(99) 99999-9999"BR == Phone.new!("(99) 99999-9999", "BR")
+
+    assert_raise Excalars.Phone.Error, "Invalid country calling code", fn ->
+      ~P"+55 (99) 99999-9999"US
+    end
+
+    assert_raise Excalars.Phone.Error, "Invalid country calling code", fn ->
+      ~P"(99) 99999-9999"
+    end
+  end
 
   describe "new/2" do
     test "with a invalid country code" do

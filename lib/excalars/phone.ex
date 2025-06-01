@@ -30,27 +30,16 @@ if Code.ensure_loaded?(ExPhoneNumber) do
       def message(%{reason: "invalid length"}), do: "The phone number has not a valid length"
     end
 
-    @doc """
-    Similar to `new/2`, but expects a E-164 number as parameter instead of a pair of local number
-    and country code.
-
-    ## Examples
-
-        iex> Excalars.Phone.new("+44 (020) 1234 5678")
-        {:ok, %Excalars.Phone{code: 44, number: 02_012_345_678}}
-
-        iex> Excalars.Phone.new("+55 9876")
-        {:error, %Excalars.Phone.Error{reason: "too short"}}
-    """
-    @spec new(number :: binary) :: {:ok, t} | {:error, Error.t()}
-    def new(<<?+, _e164::binary>> = number) do
-      new(number, nil)
-    end
+    def sigil_P(number, ~c""), do: new!(number, nil)
+    def sigil_P(number, country), do: new!(number, Kernel.to_string(country))
 
     @doc """
     Creates a new `Excalars.Phone` struct from given local number and country code.
 
     ## Examples
+
+        iex> Excalars.Phone.new("+44 (020) 1234 5678")
+        {:ok, %Excalars.Phone{code: 44, number: 02_012_345_678}}
 
         iex> Excalars.Phone.new("(11) 98765-4321", "BR")
         {:ok, %Excalars.Phone{code: 55, number: 11_987_654_321}}
@@ -59,7 +48,7 @@ if Code.ensure_loaded?(ExPhoneNumber) do
         {:error, %Excalars.Phone.Error{reason: "too short"}}
     """
     @spec new(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
-    def new(number, country) do
+    def new(number, country \\ nil) do
       with {:ok, phone} <- parse(number, country),
            :ok <- validate_number_possible(phone),
            :ok <- validate_match_country(phone, country) do
@@ -68,25 +57,12 @@ if Code.ensure_loaded?(ExPhoneNumber) do
     end
 
     @doc """
-    Same as `new/1`, but raises an exception if the phone number is invalid.
+    Same as `new/2`, but raises an exception if the phone number is invalid.
 
     ## Examples
 
         iex> Excalars.Phone.new!("+44 (020) 1234 5678")
         %Excalars.Phone{code: 44, number: 02_012_345_678}
-
-        iex> Excalars.Phone.new!("+55 9876")
-        ** (Excalars.Phone.Error) The string supplied is too short to be a phone number
-    """
-    @spec new!(number :: binary) :: t
-    def new!(<<?+, _e164::binary>> = number) do
-      new!(number, nil)
-    end
-
-    @doc """
-    Same as `new/2`, but raises an exception if the phone number is invalid.
-
-    ## Examples
 
         iex> Excalars.Phone.new!("(11) 98765-4321", "BR")
         %Excalars.Phone{code: 55, number: 11_987_654_321}
@@ -95,7 +71,7 @@ if Code.ensure_loaded?(ExPhoneNumber) do
         ** (Excalars.Phone.Error) The string supplied did not seem to be a phone number
     """
     @spec new!(number :: binary, country :: binary | nil) :: t
-    def new!(number, country) do
+    def new!(number, country \\ nil) do
       case new(number, country) do
         {:ok, phone} -> phone
         {:error, error} -> raise error
