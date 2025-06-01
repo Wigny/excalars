@@ -4,7 +4,7 @@ defmodule Excalars.MixProject do
   def project do
     [
       app: :excalars,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
@@ -28,6 +28,7 @@ defmodule Excalars.MixProject do
       {:postgrex, ">= 0.0.0", optional: true},
       {:phoenix_html, "~> 4.2", optional: true},
       {:ex_phone_number, "~> 0.4", optional: true},
+      {:ex_email, "~> 1.0", optional: true},
       {:doctest_formatter, "~> 0.4", env: :dev, runtime: false},
       {:mix_test_watch, "~> 1.2", only: [:dev, :test], runtime: false}
     ]
