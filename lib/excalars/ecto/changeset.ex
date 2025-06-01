@@ -1,4 +1,4 @@
-if Code.ensure_loaded(Ecto) do
+if Code.ensure_loaded?(Ecto) do
   defmodule Excalars.Ecto.Changeset do
     @moduledoc """
     Set of Changeset validation functions for Excalars.

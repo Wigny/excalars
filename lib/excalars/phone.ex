@@ -1,4 +1,4 @@
-if Code.ensure_loaded(ExPhoneNumber) do
+if Code.ensure_loaded?(ExPhoneNumber) do
   defmodule Excalars.Phone do
     @moduledoc """
     A representation of a phone number.

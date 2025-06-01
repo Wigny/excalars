@@ -1,4 +1,4 @@
-if Code.ensure_loaded(Ecto) do
+if Code.ensure_loaded?(Ecto) do
   defmodule Excalars.Ecto.Type.Document do
     use Ecto.ParameterizedType
 

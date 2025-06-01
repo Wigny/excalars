@@ -23,7 +23,11 @@ defmodule Excalars.Ecto.Type.MillisecondDurationTest do
     end
 
     test "equal?" do
-      assert Ecto.Type.equal?(MillisecondDuration, @duration, Duration.from_iso8601!("P22DT30.5S"))
+      assert Ecto.Type.equal?(
+               MillisecondDuration,
+               @duration,
+               Duration.from_iso8601!("P22DT30.5S")
+             )
     end
   end
 end

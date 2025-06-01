@@ -1,4 +1,4 @@
-if Code.ensure_loaded(Ecto) do
+if Code.ensure_loaded?(Ecto) do
   defmodule Excalars.Ecto.Type.URI do
     @moduledoc """
     Custom `Ecto.Type` for handling `URI` structs as binary.

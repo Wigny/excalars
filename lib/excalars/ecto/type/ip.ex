@@ -1,4 +1,4 @@
-if Code.ensure_all_loaded([Ecto, Postgrex]) do
+with :ok <- Code.ensure_all_loaded([Ecto, Postgrex]) do
   defmodule Excalars.Ecto.Type.IP do
     use Ecto.Type
 

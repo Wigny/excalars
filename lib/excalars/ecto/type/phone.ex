@@ -1,4 +1,4 @@
-if Code.ensure_all_loaded([Ecto, Excalars.Phone]) do
+with :ok <- Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
   defmodule Excalars.Ecto.Type.Phone do
     @moduledoc """
     Custom `Ecto.Type` for handling `Excalars.Phone` structs as binary.

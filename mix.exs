@@ -4,11 +4,12 @@ defmodule Excalars.MixProject do
   def project do
     [
       app: :excalars,
-      version: "0.2.0",
+      version: "0.2.1",
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -29,6 +30,17 @@ defmodule Excalars.MixProject do
       {:ex_phone_number, "~> 0.4", optional: true},
       {:doctest_formatter, "~> 0.4", env: :dev, runtime: false},
       {:mix_test_watch, "~> 1.2", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      check: [
+        "deps.get --check-locked",
+        "format --check-formatted",
+        "deps.unlock --check-unused",
+        "compile --no-optional-deps --warnings-as-errors"
+      ]
     ]
   end
 end
