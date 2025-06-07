@@ -29,8 +29,9 @@ defmodule Excalars.MixProject do
       {:phoenix_html, "~> 4.2", optional: true},
       {:ex_phone_number, "~> 0.4", optional: true},
       {:ex_email, "~> 1.0", optional: true},
+      {:easyhtml, "~> 0.3", optional: true},
       {:doctest_formatter, "~> 0.4", env: :dev, runtime: false},
-      {:mix_test_watch, "~> 1.2", only: [:dev, :test], runtime: false}
+      {:mix_test_interactive, "~> 4.3", only: :dev, runtime: false}
     ]
   end
 

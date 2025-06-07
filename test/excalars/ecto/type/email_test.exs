@@ -14,7 +14,7 @@ defmodule Excalars.Ecto.Type.EmailTest do
   test "load" do
     assert Ecto.Type.load(Email, "wigny@email.com") == {:ok, "wigny@email.com"}
     assert Ecto.Type.load(Email, "@email.com") == {:error, message: "malformed email address"}
-    assert Ecto.Type.cast(Email, :invalid) == {:error, message: "invalid email address"}
+    assert Ecto.Type.load(Email, :invalid) == {:error, message: "invalid email address"}
     assert Ecto.Type.load(Email, nil) == {:ok, nil}
   end
 
