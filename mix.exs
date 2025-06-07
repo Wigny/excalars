@@ -31,7 +31,8 @@ defmodule Excalars.MixProject do
       {:ex_email, "~> 1.0", optional: true},
       {:easyhtml, "~> 0.3", optional: true},
       {:doctest_formatter, "~> 0.4", env: :dev, runtime: false},
-      {:mix_test_interactive, "~> 4.3", only: :dev, runtime: false}
+      {:mix_test_interactive, "~> 4.3", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false, warn_if_outdated: true}
     ]
   end
 

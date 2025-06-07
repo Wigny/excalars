@@ -25,4 +25,10 @@ defmodule Phoenix.HTML.SafeTest do
     assert Safe.to_iodata(EasyHTML.parse!(html_string)) ==
              with({:safe, iodata} <- Phoenix.HTML.html_escape(html_string), do: iodata)
   end
+
+  test "impl for `Excalars.Phone" do
+    phone = Excalars.Phone.new!("+5599999999999")
+
+    assert Safe.to_iodata(phone) == "+55 99 99999-9999"
+  end
 end

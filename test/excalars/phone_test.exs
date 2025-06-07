@@ -64,19 +64,9 @@ defmodule Excalars.PhoneTest do
     end
   end
 
-  describe "valid?/1" do
-    test "with a valid phone" do
-      assert Phone.valid?(@phone)
-    end
-
-    test "with an invalid phone" do
-      refute Phone.valid?(%Phone{code: 55, number: 10})
-    end
-  end
-
-  describe "to_number/1" do
+  describe "to_e164/1" do
     test "returns a phone number" do
-      assert "+5599999999999" = Phone.to_number(@phone)
+      assert "+5599999999999" = Phone.to_e164(@phone)
     end
   end
 

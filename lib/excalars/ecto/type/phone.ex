@@ -26,10 +26,8 @@ with :ok <- Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
 
     @impl true
     def cast(number, %{country: country}) when is_binary(number) do
-      case Phone.new(number, country) do
-        {:ok, phone} -> {:ok, phone}
-        {:error, error} -> {:error, message: error.reason}
-      end
+      with {:error, error} <- Phone.new(number, country),
+           do: {:error, message: error.reason}
     end
 
     def cast(phone, %{country: nil}) when is_phone(phone) do
@@ -50,10 +48,7 @@ with :ok <- Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
 
     @impl true
     def load(number, _loader, _params) when is_binary(number) do
-      case Phone.parse(<<?+, number::binary>>) do
-        {:ok, _phone} = ok -> ok
-        {:error, _error} -> :error
-      end
+      {:ok, Phone.new!(number)}
     end
 
     def load(number, _loader, _params) when is_nil(number) do
@@ -62,8 +57,7 @@ with :ok <- Code.ensure_all_loaded([Ecto, ExPhoneNumber]) do
 
     @impl true
     def dump(phone, _dumper, _params) when is_phone(phone) do
-      <<?+, number::binary>> = Phone.to_number(phone)
-      {:ok, number}
+      {:ok, Phone.to_e164(phone)}
     end
 
     def dump(phone, _dumper, _params) when is_nil(phone) do

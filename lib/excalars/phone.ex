@@ -34,25 +34,25 @@ if Code.ensure_loaded?(ExPhoneNumber) do
     def sigil_P(number, country), do: new!(number, Kernel.to_string(country))
 
     @doc """
-    Creates a new `Excalars.Phone` struct from given local number and country code.
+    Creates a new `Phone` struct from given local number and country code.
 
     ## Examples
 
-        iex> Excalars.Phone.new("+44 (020) 1234 5678")
+        iex> Phone.new("+44 (020) 1234 5678")
         {:ok, %Excalars.Phone{code: 44, number: 02_012_345_678}}
 
-        iex> Excalars.Phone.new("(11) 98765-4321", "BR")
+        iex> Phone.new("(11) 98765-4321", "BR")
         {:ok, %Excalars.Phone{code: 55, number: 11_987_654_321}}
 
-        iex> Excalars.Phone.new("9876", "BR")
-        {:error, %Excalars.Phone.Error{reason: "too short"}}
+        iex> Phone.new("9876", "BR")
+        {:error, Phone.Error.new(reason: "too short")}
     """
     @spec new(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
     def new(number, country \\ nil) do
-      with {:ok, phone} <- parse(number, country),
-           :ok <- validate_number_possible(phone),
-           :ok <- validate_match_country(phone, country) do
-        {:ok, phone}
+      with {:ok, phone_number} <- parse_phone_number(number, country),
+           :ok <- validate_number_possible(phone_number),
+           :ok <- validate_match_country(phone_number, country) do
+        {:ok, %__MODULE__{code: phone_number.country_code, number: phone_number.national_number}}
       end
     end
 
@@ -61,13 +61,13 @@ if Code.ensure_loaded?(ExPhoneNumber) do
 
     ## Examples
 
-        iex> Excalars.Phone.new!("+44 (020) 1234 5678")
+        iex> Phone.new!("+44 (020) 1234 5678")
         %Excalars.Phone{code: 44, number: 02_012_345_678}
 
-        iex> Excalars.Phone.new!("(11) 98765-4321", "BR")
+        iex> Phone.new!("(11) 98765-4321", "BR")
         %Excalars.Phone{code: 55, number: 11_987_654_321}
 
-        iex> Excalars.Phone.new!("invalid", "BR")
+        iex> Phone.new!("invalid", "BR")
         ** (Excalars.Phone.Error) The string supplied did not seem to be a phone number
     """
     @spec new!(number :: binary, country :: binary | nil) :: t
@@ -79,59 +79,26 @@ if Code.ensure_loaded?(ExPhoneNumber) do
     end
 
     @doc """
-    Parses a phone number and country code into the `Excalars.Phone` struct without futher
-    validations.
-    """
-    @spec parse(number :: binary, country :: binary | nil) :: {:ok, t} | {:error, Error.t()}
-    def parse(number, country \\ nil) do
-      case ExPhoneNumber.parse(number, country) do
-        {:ok, phone_number} -> {:ok, from_phone_number(phone_number)}
-        {:error, message} -> {:error, Error.new(reason: to_error_reason(message))}
-      end
-    end
-
-    @doc """
-    Checks whether the `Excalars.Phone` has a possible valid number.
+    Converts the given `Phone` to an [E.164](https://wikipedia.org/wiki/E.164) formatted string.
 
     ## Examples
 
-        iex> {:ok, phone} = Excalars.Phone.parse("+800 1234 5678")
-        ...> Excalars.Phone.valid?(phone)
-        true
-
-        iex> {:ok, phone} = Excalars.Phone.parse("9876", "BR")
-        ...> Excalars.Phone.valid?(phone)
-        false
-    """
-    @spec valid?(phone :: t) :: boolean
-    def valid?(phone) do
-      phone_number = to_phone_number(phone)
-
-      ExPhoneNumber.is_possible_number?(phone_number) and
-        ExPhoneNumber.is_valid_number?(phone_number)
-    end
-
-    @doc """
-    Converts the `Excalars.Phone` into its number representation.
-
-    ## Examples
-
-        iex> phone = Excalars.Phone.new!("+55 11 98765-4321")
-        ...> Excalars.Phone.to_number(phone)
+        iex> phone = Phone.new!("+55 11 98765-4321")
+        ...> Phone.to_e164(phone)
         "+5511987654321"
     """
-    @spec to_number(phone :: t) :: binary
-    def to_number(phone) do
+    @spec to_e164(phone :: t) :: binary
+    def to_e164(phone) do
       ExPhoneNumber.format(to_phone_number(phone), :e164)
     end
 
     @doc """
-    Converts the `Excalars.Phone` into a formatted phone number string.
+    Converts the `Phone` into a formatted phone number string.
 
     ## Examples
 
-        iex> phone = Excalars.Phone.new!("11987654321", "BR")
-        ...> Excalars.Phone.to_string(phone)
+        iex> phone = Phone.new!("11987654321", "BR")
+        ...> Phone.to_string(phone)
         "+55 11 98765-4321"
     """
     @spec to_string(phone :: t) :: binary
@@ -140,12 +107,12 @@ if Code.ensure_loaded?(ExPhoneNumber) do
     end
 
     @doc """
-    Converts the given `Excalars.Phone` into the `URI` struct.
+    Converts the given `Phone` into the `URI` struct.
 
     ## Examples
 
-        iex> phone = Excalars.Phone.new!("+55 11 98765-4321")
-        ...> Excalars.Phone.to_uri(phone)
+        iex> phone = Phone.new!("+55 11 98765-4321")
+        ...> Phone.to_uri(phone)
         %URI{scheme: "tel", path: "+55-11-98765-4321"}
     """
     @spec to_uri(phone :: t) :: URI.t()
@@ -154,27 +121,29 @@ if Code.ensure_loaded?(ExPhoneNumber) do
       URI.parse(tel)
     end
 
-    defp from_phone_number(phone_number) do
-      %__MODULE__{code: phone_number.country_code, number: phone_number.national_number}
+    defp parse_phone_number(number, country) do
+      with {:error, message} <- ExPhoneNumber.parse(number, country) do
+        {:error, Error.new(reason: to_error_reason(message))}
+      end
     end
 
     defp to_phone_number(phone) do
       %ExPhoneNumber.Model.PhoneNumber{country_code: phone.code, national_number: phone.number}
     end
 
-    defp validate_number_possible(phone) do
-      case ExPhoneNumber.Validation.is_possible_number_with_reason?(to_phone_number(phone)) do
+    defp validate_number_possible(phone_number) do
+      case ExPhoneNumber.Validation.is_possible_number_with_reason?(phone_number) do
         :is_possible -> :ok
         reason -> {:error, Error.new(reason: to_error_reason(reason))}
       end
     end
 
-    defp validate_match_country(_phone, nil) do
+    defp validate_match_country(_phone_number, nil) do
       :ok
     end
 
-    defp validate_match_country(phone, country) do
-      if match?(^country, ExPhoneNumber.Metadata.get_region_code_for_country_code(phone.code)) do
+    defp validate_match_country(%{country_code: country_code}, country) do
+      if match?(^country, ExPhoneNumber.Metadata.get_region_code_for_country_code(country_code)) do
         :ok
       else
         {:error, Error.new(reason: "invalid country code")}
@@ -212,11 +181,9 @@ if Code.ensure_loaded?(ExPhoneNumber) do
       end
     end
 
-    if Code.ensure_loaded?(Phoenix.HTML.Safe) do
+    if Code.ensure_loaded?(Phoenix.HTML) do
       defimpl Phoenix.HTML.Safe do
-        def to_iodata(phone) do
-          to_string(phone)
-        end
+        defdelegate to_iodata(phone), to: @for, as: :to_string
       end
     end
   end
