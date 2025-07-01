@@ -42,7 +42,7 @@ if Code.ensure_loaded?(Ecto) do
         hour: hour,
         minute: minute,
         second: second,
-        microsecond: {microsecond, 6}
+        microsecond: {microsecond, if(microsecond == 0, do: 0, else: 3)}
       )
     end
 

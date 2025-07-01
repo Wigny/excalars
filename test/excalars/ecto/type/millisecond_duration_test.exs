@@ -3,7 +3,7 @@ defmodule Excalars.Ecto.Type.MillisecondDurationTest do
 
   alias Excalars.Ecto.Type.MillisecondDuration
 
-  @duration Duration.from_iso8601!("P3W1DT30.500000S")
+  @duration Duration.from_iso8601!("P3W1DT30.500S")
   @milliseconds to_timeout(@duration)
 
   describe "duration" do
