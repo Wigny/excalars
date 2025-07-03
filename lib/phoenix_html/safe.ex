@@ -4,11 +4,11 @@ with :ok <- Code.ensure_all_loaded([Phoenix.HTML, Duration]) do
   end
 end
 
-with :ok <- Code.ensure_all_loaded([Phoenix.HTML, EasyHTML, Floki]) do
+with :ok <- Code.ensure_all_loaded([Phoenix.HTML, EasyHTML]) do
   defimpl Phoenix.HTML.Safe, for: EasyHTML do
-    def to_iodata(%EasyHTML{nodes: html_tree}) do
-      html_tree
-      |> Floki.raw_html(encode: false)
+    def to_iodata(html) do
+      html
+      |> EasyHTML.to_html()
       |> Phoenix.HTML.Engine.encode_to_iodata!()
     end
   end

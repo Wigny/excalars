@@ -22,7 +22,7 @@ defmodule Phoenix.HTML.SafeTest do
   test "impl for `EasyHTML`" do
     html_string = ~s(<div class="wrapper">10 > 5</div>)
 
-    assert Safe.to_iodata(EasyHTML.parse!(html_string)) ==
+    assert Safe.to_iodata(EasyHTML.from_document(html_string)) ==
              with({:safe, iodata} <- Phoenix.HTML.html_escape(html_string), do: iodata)
   end
 
